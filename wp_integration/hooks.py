@@ -179,3 +179,22 @@ user_data_fields = [
 # 	"wp_integration.auth.validate"
 # ]
 
+doc_events = {
+    "*": {
+        "before_insert": "wp_integration.utils.run_server_script_for_doc_event",
+        "after_insert": "wp_integration.utils.run_server_script_for_doc_event",
+        "before_validate": "wp_integration.utils.run_server_script_for_doc_event",
+        "validate": "wp_integration.utils.run_server_script_for_doc_event",
+        "on_update": "wp_integration.utils.run_server_script_for_doc_event",
+        "before_submit": "wp_integration.utils.run_server_script_for_doc_event",
+        "on_submit": "wp_integration.utils.run_server_script_for_doc_event",
+        "before_cancel": "wp_integration.utils.run_server_script_for_doc_event",
+        "on_cancel": "wp_integration.utils.run_server_script_for_doc_event",
+        "on_trash": "wp_integration.utils.run_server_script_for_doc_event",
+        "after_delete": "wp_integration.utils.run_server_script_for_doc_event",
+        "before_update_after_submit": "wp_integration.utils.run_server_script_for_doc_event",
+        "on_update_after_submit": "wp_integration.utils.run_server_script_for_doc_event",
+        "on_payment_authorized": "wp_integration.utils.run_server_script_for_doc_event"
+    }
+}
+
