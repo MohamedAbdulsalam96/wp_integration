@@ -1,0 +1,18 @@
+include MANIFEST.in
+include requirements.txt
+include *.json
+include *.md
+include *.py
+include *.txt
+recursive-include wp_integration *.css
+recursive-include wp_integration *.csv
+recursive-include wp_integration *.html
+recursive-include wp_integration *.ico
+recursive-include wp_integration *.js
+recursive-include wp_integration *.json
+recursive-include wp_integration *.md
+recursive-include wp_integration *.png
+recursive-include wp_integration *.py
+recursive-include wp_integration *.svg
+recursive-include wp_integration *.txt
+recursive-exclude wp_integration *.pyc
