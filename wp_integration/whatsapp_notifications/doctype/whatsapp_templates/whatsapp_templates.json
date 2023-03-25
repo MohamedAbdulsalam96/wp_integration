@@ -8,14 +8,18 @@
  "engine": "InnoDB",
  "field_order": [
   "template",
+  "sample_values",
   "column_break_6",
   "template_name",
   "category",
   "language",
   "language_code",
+  "header_type",
   "header",
+  "sample",
   "footer",
-  "id"
+  "id",
+  "status"
  ],
  "fields": [
   {
@@ -49,6 +53,7 @@
    "read_only": 1
   },
   {
+   "depends_on": "eval:doc.header_type == 'TEXT'",
    "fieldname": "header",
    "fieldtype": "Data",
    "label": "Header"
@@ -63,10 +68,11 @@
    "fieldtype": "Column Break"
   },
   {
+   "description": "For V16 use UTILITY and AUTHENTICATION in place of TRANSACTIONAL and OTP",
    "fieldname": "category",
    "fieldtype": "Select",
    "label": "Category",
-   "options": "\nTRANSACTIONAL\nMARKETING\nOTP",
+   "options": "\nTRANSACTIONAL\nMARKETING\nOTP\nUTILITY\nAUTHENTICATION",
    "reqd": 1
   },
   {
@@ -74,11 +80,35 @@
    "fieldtype": "Data",
    "label": "ID",
    "read_only": 1
+  },
+  {
+   "default": "Pending",
+   "fieldname": "status",
+   "fieldtype": "Data",
+   "label": "Status"
+  },
+  {
+   "fieldname": "header_type",
+   "fieldtype": "Select",
+   "label": "Header Type",
+   "options": "\nTEXT\nDOCUMENT"
+  },
+  {
+   "depends_on": "eval:doc.header_type && doc.header_type != 'TEXT'",
+   "fieldname": "sample",
+   "fieldtype": "Data",
+   "label": "Sample",
+   "options": "URL"
+  },
+  {
+   "fieldname": "sample_values",
+   "fieldtype": "Text",
+   "label": "Sample Values"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-10-28 22:57:25.811070",
+ "modified": "2023-03-21 13:22:49.965389",
  "modified_by": "Administrator",
  "module": "Whatsapp Notifications",
  "name": "WhatsApp Templates",

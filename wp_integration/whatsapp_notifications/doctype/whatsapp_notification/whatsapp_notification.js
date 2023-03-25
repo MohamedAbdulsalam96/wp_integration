@@ -12,9 +12,17 @@ frappe.ui.form.on('WhatsApp Notification', {
 		frappe.db.get_value(
 			"WhatsApp Templates",
 			frm.doc.template,
-			"template",
+			["template", "header_type"],
 			(r) => {
 				if (r && r.template) {
+					if (r.header_type == 'DOCUMENT'){
+						frm.toggle_display("attach_document_print", true);
+						frm.set_value("attach_document_print", 1)
+					}else{
+						frm.toggle_display("attach_document_print", false);
+						frm.set_value("attach_document_print", 0)
+					}
+
 					frm.set_value("code", r.template);
 					frm.refresh_field("code")
 				}

@@ -5,6 +5,7 @@ import frappe
 from frappe.model.document import Document
 from frappe.utils.safe_exec import get_safe_globals, safe_exec
 from frappe.integrations.utils import make_post_request
+from frappe.desk.form.utils import get_pdf_link
 
 
 class WhatsAppNotification(Document):
@@ -22,7 +23,7 @@ class WhatsAppNotification(Document):
             if not any(field.fieldname == self.field_name for field in fields): # noqa
                 frappe.throw(f"Field name {self.field_name} does not exists")
 
-    def execute_method(self) -> dict:
+    def send_scheduled_message(self) -> dict:
         """Specific to API endpoint Server Scripts."""
         safe_exec(
             self.condition, get_safe_globals(), dict(doc=self)
@@ -49,7 +50,7 @@ class WhatsAppNotification(Document):
                 self.notify(data)
         # return _globals.frappe.flags
 
-    def execute_doc(self, doc: Document):
+    def send_template_message(self, doc: Document):
         """Specific to Document Event triggered Server Scripts."""
         if self.disabled:
             return
@@ -62,12 +63,12 @@ class WhatsAppNotification(Document):
             ):
                 return
 
-        language_code = frappe.db.get_value(
+        template = frappe.db.get_value(
             "WhatsApp Templates", self.template,
-            fieldname='language_code'
+            fieldname='*'
         )
 
-        if language_code:
+        if template:
             data = {
                 "messaging_product": "whatsapp",
                 "to": self.format_number(doc_data[self.field_name]),
@@ -75,7 +76,7 @@ class WhatsAppNotification(Document):
                 "template": {
                     "name": self.template,
                     "language": {
-                        "code": language_code
+                        "code": template.language_code
                     },
                     "components": []
                 }
@@ -95,6 +96,42 @@ class WhatsAppNotification(Document):
                     "parameters": parameters
                 }]
 
+                if self.attach_document_print:
+                    # frappe.db.begin()
+                    key = doc.get_document_share_key()  # noqa
+                    frappe.db.commit()
+                    print_format = "Standard"
+                    doctype = frappe.get_doc("DocType", doc_data['doctype'])
+                    if doctype.custom:
+                        if doctype.default_print_format:
+                            print_format = doctype.default_print_format
+                    else:
+                        default_print_format = frappe.db.get_value(
+                            "Property Setter",
+                            filters={
+                                "doc_type": doc_data['doctype'],
+                                "property": "default_print_format"
+                            },
+                            fieldname="value"
+                        )
+                        print_format = default_print_format if default_print_format else print_format
+                    link = get_pdf_link(
+                        doc_data['doctype'],
+                        doc_data['name'],
+                        print_format=print_format
+                    )
+
+                    data['template']['components'].append({
+                        "type": "header",
+                        "parameters": [{
+                            "type": "document",
+                            "document": {
+                                "link": f'{frappe.utils.get_url()}{link}&key={key}',
+                                "filename": f'{doc_data["name"]}.pdf'
+                            }
+                        }]
+                    })
+
             self.notify(data)
 
     def notify(self, data):
@@ -108,17 +145,33 @@ class WhatsAppNotification(Document):
             "authorization": f"Bearer {token}",
             "content-type": "application/json"
         }
+        try:
+            response = make_post_request(
+                f"{settings.url}/{settings.version}/{settings.phone_id}/messages",
+                headers=headers, data=json.dumps(data)
+            )
 
-        response = make_post_request(
-            f"{settings.url}/{settings.version}/{settings.phone_id}/messages",
-            headers=headers, data=json.dumps(data)
-        )
-
-        frappe.get_doc({
-            "doctype": "WhatsApp Notification Log",
-            "template": self.template,
-            "meta_data": response
-        }).insert(ignore_permissions=True)
+            frappe.get_doc({
+                "doctype": "WhatsApp Message",
+                "type": "Outgoing",
+                "message": str(data['template']),
+                "to": data['to'],
+                "message_type": "Template",
+                "message_id": response['messages'][0]['id']
+            }).save(ignore_permissions=True)
+        except Exception as e:
+            response = frappe.flags.integration_request.json()['error']
+            error_message = response.get('Error', response.get("message"))
+            frappe.throw(
+                msg=error_message,
+                title=response.get("error_user_title", "Error")
+            )
+        finally:
+            frappe.get_doc({
+                "doctype": "WhatsApp Notification Log",
+                "template": self.template,
+                "meta_data": frappe.flags.integration_request.json()
+            }).insert(ignore_permissions=True)
 
     def on_trash(self):
         """On delete remove from schedule."""
