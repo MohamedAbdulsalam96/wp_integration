@@ -1,0 +1,55 @@
+{
+ "category": "Modules",
+ "charts": [],
+ "creation": "2023-03-25 01:07:26.088748",
+ "developer_mode_only": 0,
+ "disable_user_customization": 0,
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "extends_another_page": 0,
+ "hide_custom": 0,
+ "idx": 0,
+ "is_default": 0,
+ "is_standard": 1,
+ "label": "Whatsapp Notifications",
+ "links": [],
+ "modified": "2023-03-25 03:29:33.581657",
+ "modified_by": "Administrator",
+ "module": "Whatsapp Notifications",
+ "name": "Whatsapp Notifications",
+ "owner": "Administrator",
+ "pin_to_bottom": 0,
+ "pin_to_top": 1,
+ "shortcuts": [
+  {
+   "doc_view": "",
+   "label": "WhatsApp Message",
+   "link_to": "WhatsApp Message",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "",
+   "label": "WhatsApp Notification",
+   "link_to": "WhatsApp Notification",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "",
+   "label": "WhatsApp Notification Log",
+   "link_to": "WhatsApp Notification Log",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "",
+   "label": "WhatsApp Settings",
+   "link_to": "WhatsApp Settings",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "",
+   "label": "WhatsApp Templates",
+   "link_to": "WhatsApp Templates",
+   "type": "DocType"
+  }
+ ]
+}
